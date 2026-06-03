@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.title("📊 Nettoyage des employés AJQ")
+st.title("📊 Préparation import pour Juris")
 
 # Upload fichier
 uploaded_file = st.file_uploader("Choisir le fichier Excel", type=["xlsx"])
@@ -80,7 +80,6 @@ if uploaded_file:
                 .str.replace("directrice", "avocat", regex=False)
                 .str.replace("professionel", "avocat", regex=False)
                 .str.replace("professionnel", "avocat", regex=False)
-                .str.replace("professionnelle", "avocat", regex=False)
                 .str.replace("exécutif", "avocat", regex=False)
             )
 
