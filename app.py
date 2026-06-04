@@ -112,7 +112,6 @@ if uploaded_file:
         # -------------------------
 
         valeurs_defaut = {
-            "Sexe": "F",
             "Langue": "QC",
             "Profil": "Employé(e)Avocat/Soutien",
             "AccesDossier": "tous",
