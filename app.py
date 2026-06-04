@@ -1,6 +1,22 @@
 import streamlit as st
 import pandas as pd
 
+colonnes_apres_prenom = [
+    "DateNaiss", "Sexe", "Langue", "NAS", "NoBande", "Nsr", "SED"
+]
+colonnes_fin = [
+    "Profil", "AccesDossier", "AccesActivite", "AccesFeuilleTemps",
+    "AccesClavardage", "AccesRapStat", "AccesEmploye", "AccesBureau",
+    "PROPRIÉTÉ SYSTÈME", "Titre",
+    "Numéro d'impliqué permanent",
+    "Destinataire par défaut des activités",
+    "Calendrier des activités (heure de début)",
+    "Calendrier des activités (heure de fin)",
+    "Activités (durées des activités en minutes)",
+    "Heure de début des activités",
+    "Bureaux additionnels"
+]
+
 st.title("📊 Préparation import pour Juris")
 
 # Upload fichier
@@ -74,31 +90,59 @@ if uploaded_file:
                 df_clean["Fonction"].astype(str)
                 .str.replace("avocate", "avocat", regex=False)
                 .str.replace("employée de soutien", "", regex=False)
-                .str.replace("employé de soutien", "avocat", regex=False)
+                .str.replace("employé de soutien", "", regex=False)
                 .str.replace("secrétaire", "", regex=False)
                 .str.replace("directeur", "avocat", regex=False)
                 .str.replace("directrice", "avocat", regex=False)
-                .str.replace("professionel", "avocat", regex=False)
-                .str.replace("professionnel", "avocat", regex=False)
+                .str.replace("professionel", "", regex=False)
+                .str.replace("professionnel", "", regex=False)
                 .str.replace("exécutif", "avocat", regex=False)
+                .str.replace("avocat stagiaire", "", regex=False)
             )
 
-        # Ordre colonnes
-        wanted_order = [
-            "Ds Region", "Nom Bureau", "Nom", "Prénom", "Fonction", "Code Avocat",
-            "Téléphone", "Courriel", "Telecopieur", "Adresse", "Ville", "Code Postal"
-        ]
+# Colonnes de base
+colonnes_base = [
+    "Ds Region", "Nom Bureau", "Nom", "Prénom"
+]
 
-        df_clean = df_clean[[c for c in wanted_order if c in df_clean.columns]]
+# Colonnes après prénom
+colonnes_milieu = colonnes_apres_prenom
 
-        # Affichage
-        st.dataframe(df_clean)
+# Reste des colonnes existantes (déjà nettoyées)
+colonnes_suite = [
+    "Fonction", "Code Avocat", "Téléphone",
+    "Courriel", "Telecopieur", "Adresse", "Ville", "Code Postal"
+]
+
+# Colonnes fin SaaS
+colonnes_finales = colonnes_fin
+
+# Ordre final complet
+ordre_final = (
+    colonnes_base +
+    colonnes_milieu +
+    colonnes_suite +
+    colonnes_finales
+)
+
+# Appliquer seulement les colonnes existantes
+df_clean = df_clean[[c for c in ordre_final if c in df_clean.columns]]
+
+# Affichage
+df_clean = df_clean.fillna("")
+df_clean = df_clean.astype(str)
+st.dataframe(df_clean)
+
+# Ajouter colonnes vides
+for col in colonnes_apres_prenom + colonnes_fin:
+   if col not in df_clean.columns:
+        df_clean[col] = ""
 
         # Export
-        output_file = "resultat.xlsx"
-        df_clean.to_excel(output_file, index=False)
+output_file = "resultat.xlsx"
+df_clean.to_excel(output_file, index=False)
 
-        with open(output_file, "rb") as f:
+with open(output_file, "rb") as f:
             st.download_button(
                 label="📥 Télécharger le fichier Excel",
                 data=f,
