@@ -1,49 +1,29 @@
 import streamlit as st
 import pandas as pd
 
-colonnes_apres_prenom = [
-    "DateNaiss", "Sexe", "Langue", "NAS", "NoBande", "Nsr", "SED"
-]
-colonnes_fin = [
-    "Profil", "AccesDossier", "AccesActivite", "AccesFeuilleTemps",
-    "AccesClavardage", "AccesRapStat", "AccesEmploye", "AccesBureau",
-    "PROPRIÉTÉ SYSTÈME", "Titre",
-    "Numéro d'impliqué permanent",
-    "Destinataire par défaut des activités",
-    "Calendrier des activités (heure de début)",
-    "Calendrier des activités (heure de fin)",
-    "Activités (durées des activités en minutes)",
-    "Heure de début des activités",
-    "Bureaux additionnels"
-]
-
 st.title("📊 Préparation import pour Juris")
 
-# Upload fichier
 uploaded_file = st.file_uploader("Choisir le fichier Excel", type=["xlsx"])
 
 if uploaded_file:
 
     df = pd.read_excel(uploaded_file, sheet_name="Employes actifs de l'AJQ", skiprows=2)
-
     st.write("✅ Fichier chargé")
 
-    # Liste des régions
     regions = df["Ds Region"].dropna().unique()
-
     choix = st.selectbox("Choisir une région", ["Toutes"] + list(regions))
 
+    # -------------------------
     # Fonctions
+    # -------------------------
+
     def normaliser_telephone(x):
         if pd.isna(x):
             return x
-
         s = "".join(ch for ch in str(x) if ch.isdigit())
-
         if len(s) >= 10:
             s = s[-10:]
             return f"{s[:3]}-{s[3:6]}-{s[6:]}"
-        
         return x
 
     def fusionner_tel_poste(row):
@@ -55,20 +35,21 @@ if uploaded_file:
 
         if not pd.isna(poste) and str(poste).strip() != "":
             poste_str = str(poste).strip()
-
             if poste_str.endswith(".0"):
                 poste_str = poste_str[:-2]
-
             return f"{tel} poste {poste_str}"
 
         return tel
 
-    # Bouton d'exécution
+    # -------------------------
+    # Bouton
+    # -------------------------
+
     if st.button("🚀 Lancer le traitement"):
 
         df_clean = df.copy()
 
-        # Filtrer région
+        # Filtre région
         if choix != "Toutes":
             df_clean = df_clean[df_clean["Ds Region"] == choix]
 
@@ -79,12 +60,12 @@ if uploaded_file:
         if "Téléphone" in df_clean.columns:
             df_clean["Téléphone"] = df_clean["Téléphone"].apply(normaliser_telephone)
 
-        # Fusion Poste
+        # Fusion poste
         if "Téléphone" in df_clean.columns and "Poste" in df_clean.columns:
             df_clean["Téléphone"] = df_clean.apply(fusionner_tel_poste, axis=1)
             df_clean = df_clean.drop(columns="Poste")
 
-        # Fonction
+        # Nettoyage Fonction
         if "Fonction" in df_clean.columns:
             df_clean["Fonction"] = (
                 df_clean["Fonction"].astype(str)
@@ -100,61 +81,72 @@ if uploaded_file:
                 .str.replace("avocat stagiaire", "", regex=False)
             )
 
-# Colonnes de base
-colonnes_base = [
-    "Ds Region", "Nom Bureau", "Nom", "Prénom"
-]
+        # -------------------------
+        # Colonnes
+        # -------------------------
 
-# Colonnes après prénom
-colonnes_apres_prenom = [
-    "DateNaiss", "Sexe", "Langue", "NAS", "NoBande", "Nsr", "SED"
-]
+        colonnes_apres_prenom = [
+            "DateNaiss", "Sexe", "Langue", "NAS", "NoBande", "Nsr", "SED"
+        ]
 
-# Colonnes principales
-colonnes_suite = [
-    "Fonction", "Code Avocat", "Téléphone",
-    "Courriel", "Telecopieur", "Adresse", "Ville", "Code Postal"
-]
+        colonnes_fin = [
+            "Profil", "AccesDossier", "AccesActivite", "AccesFeuilleTemps",
+            "AccesClavardage", "AccesRapStat", "AccesEmploye", "AccesBureau",
+            "PROPRIÉTÉ SYSTÈME", "Titre",
+            "Numéro d'impliqué permanent",
+            "Destinataire par défaut des activités",
+            "Calendrier des activités (heure de début)",
+            "Calendrier des activités (heure de fin)",
+            "Activités (durées des activités en minutes)",
+            "Heure de début des activités",
+            "Bureaux additionnels"
+        ]
 
-# Colonnes fin SaaS
-colonnes_fin = [
-    "Profil", "AccesDossier", "AccesActivite", "AccesFeuilleTemps",
-    "AccesClavardage", "AccesRapStat", "AccesEmploye", "AccesBureau",
-    "PROPRIÉTÉ SYSTÈME", "Titre",
-    "Numéro d'impliqué permanent",
-    "Destinataire par défaut des activités",
-    "Calendrier des activités (heure de début)",
-    "Calendrier des activités (heure de fin)",
-    "Activités (durées des activités en minutes)",
-    "Heure de début des activités",
-    "Bureaux additionnels"
-]
+        # ✅ Ajouter colonnes AVANT réorganisation
+        for col in colonnes_apres_prenom + colonnes_fin:
+            if col not in df_clean.columns:
+                df_clean[col] = ""
 
-# ✅ ordre final (CRUCIAL)
-ordre_final = (
-    colonnes_base +
-    colonnes_apres_prenom +
-    colonnes_suite +
-    colonnes_fin
-)
-# Appliquer seulement les colonnes existantes
-df_clean = df_clean[[c for c in ordre_final if c in df_clean.columns]]
+        # -------------------------
+        # Ordre final
+        # -------------------------
 
-# Affichage
-df_clean = df_clean.fillna("")
-df_clean = df_clean.astype(str)
-st.dataframe(df_clean)
+        colonnes_base = [
+            "Ds Region", "Nom Bureau", "Nom", "Prénom"
+        ]
 
-# Ajouter colonnes vides
-for col in colonnes_apres_prenom + colonnes_fin:
-   if col not in df_clean.columns:
-        df_clean[col] = ""
+        colonnes_suite = [
+            "Fonction", "Code Avocat", "Téléphone",
+            "Courriel", "Telecopieur", "Adresse", "Ville", "Code Postal"
+        ]
 
+        ordre_final = (
+            colonnes_base +
+            colonnes_apres_prenom +
+            colonnes_suite +
+            colonnes_fin
+        )
+
+        df_clean = df_clean[[c for c in ordre_final if c in df_clean.columns]]
+
+        # Nettoyage final
+        df_clean = df_clean.fillna("")
+        df_clean = df_clean.astype(str)
+
+        # -------------------------
+        # Affichage
+        # -------------------------
+
+        st.dataframe(df_clean)
+
+        # -------------------------
         # Export
-output_file = "resultat.xlsx"
-df_clean.to_excel(output_file, index=False)
+        # -------------------------
 
-with open(output_file, "rb") as f:
+        output_file = "resultat.xlsx"
+        df_clean.to_excel(output_file, index=False)
+
+        with open(output_file, "rb") as f:
             st.download_button(
                 label="📥 Télécharger le fichier Excel",
                 data=f,
