@@ -106,25 +106,37 @@ colonnes_base = [
 ]
 
 # Colonnes après prénom
-colonnes_milieu = colonnes_apres_prenom
+colonnes_apres_prenom = [
+    "DateNaiss", "Sexe", "Langue", "NAS", "NoBande", "Nsr", "SED"
+]
 
-# Reste des colonnes existantes (déjà nettoyées)
+# Colonnes principales
 colonnes_suite = [
     "Fonction", "Code Avocat", "Téléphone",
     "Courriel", "Telecopieur", "Adresse", "Ville", "Code Postal"
 ]
 
 # Colonnes fin SaaS
-colonnes_finales = colonnes_fin
+colonnes_fin = [
+    "Profil", "AccesDossier", "AccesActivite", "AccesFeuilleTemps",
+    "AccesClavardage", "AccesRapStat", "AccesEmploye", "AccesBureau",
+    "PROPRIÉTÉ SYSTÈME", "Titre",
+    "Numéro d'impliqué permanent",
+    "Destinataire par défaut des activités",
+    "Calendrier des activités (heure de début)",
+    "Calendrier des activités (heure de fin)",
+    "Activités (durées des activités en minutes)",
+    "Heure de début des activités",
+    "Bureaux additionnels"
+]
 
-# Ordre final complet
+# ✅ ordre final (CRUCIAL)
 ordre_final = (
     colonnes_base +
-    colonnes_milieu +
+    colonnes_apres_prenom +
     colonnes_suite +
-    colonnes_finales
+    colonnes_fin
 )
-
 # Appliquer seulement les colonnes existantes
 df_clean = df_clean[[c for c in ordre_final if c in df_clean.columns]]
 
