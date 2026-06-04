@@ -102,12 +102,7 @@ if uploaded_file:
             "Bureaux additionnels"
         ]
 
-        # ✅ Ajouter colonnes AVANT réorganisation
-        for col in colonnes_apres_prenom + colonnes_fin:
-            if col not in df_clean.columns:
-                df_clean[col] = ""
-
-# -------------------------
+        # -------------------------
 # Préremplissage SaaS
 # -------------------------
 
@@ -133,6 +128,11 @@ valeurs_defaut = {
 for col, val in valeurs_defaut.items():
     if col in df_clean.columns:
         df_clean[col] = df_clean[col].replace("", val)
+
+        # ✅ Ajouter colonnes AVANT réorganisation
+        for col in colonnes_apres_prenom + colonnes_fin:
+            if col not in df_clean.columns:
+                df_clean[col] = ""
 
         # -------------------------
         # Ordre final
