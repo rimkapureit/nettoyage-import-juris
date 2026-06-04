@@ -102,37 +102,37 @@ if uploaded_file:
             "Bureaux additionnels"
         ]
 
-        # -------------------------
-# Préremplissage SaaS
-# -------------------------
-
-valeurs_defaut = {
-    "Sexe": "F",
-    "Langue": "QC",
-    "Profil": "Employé(e)Avocat/Soutien",
-    "AccesDossier": "tous",
-    "AccesActivite": "tous",
-    "AccesFeuilleTemps": "usager courant",
-    "AccesClavardage": "usager courant",
-    "AccesRapStat": "usager courant",
-    "AccesEmploye": "usager courant",
-    "AccesBureau": "Sélection",
-    "PROPRIÉTÉ SYSTÈME": "Usager Courant",
-    "Calendrier des activités (heure de début)": "08:00:00",
-    "Calendrier des activités (heure de fin)": "23:30:00",
-    "Activités (durées des activités en minutes)": "15",
-    "Heure de début des activités": "08:00:00"
-}
-
-# Appliquer seulement si vide
-for col, val in valeurs_defaut.items():
-    if col in df_clean.columns:
-        df_clean[col] = df_clean[col].replace("", val)
-
         # ✅ Ajouter colonnes AVANT réorganisation
         for col in colonnes_apres_prenom + colonnes_fin:
             if col not in df_clean.columns:
                 df_clean[col] = ""
+
+        # -------------------------
+        # Préremplissage SaaS
+        # -------------------------
+
+        valeurs_defaut = {
+            "Sexe": "F",
+            "Langue": "QC",
+            "Profil": "Employé(e)Avocat/Soutien",
+            "AccesDossier": "tous",
+            "AccesActivite": "tous",
+            "AccesFeuilleTemps": "usager courant",
+            "AccesClavardage": "usager courant",
+            "AccesRapStat": "usager courant",
+            "AccesEmploye": "usager courant",
+            "AccesBureau": "Sélection",
+            "PROPRIÉTÉ SYSTÈME": "Usager Courant",
+            "Calendrier des activités (heure de début)": "08:00:00",
+            "Calendrier des activités (heure de fin)": "23:30:00",
+            "Activités (durées des activités en minutes)": "15",
+            "Heure de début des activités": "08:00:00"
+        }
+
+        # Appliquer seulement si vide
+        for col, val in valeurs_defaut.items():
+            if col in df_clean.columns:
+                df_clean[col] = df_clean[col].replace("", val)
 
         # -------------------------
         # Ordre final
