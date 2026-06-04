@@ -132,6 +132,15 @@ if uploaded_file:
         for col, val in valeurs_defaut.items():
             if col in df_clean.columns:
                 df_clean[col] = df_clean[col].replace("", val)
+        # -------------------------
+        # Préremplissage conditionnel (Titre = Me)
+        # -------------------------
+
+        if "Fonction" in df_clean.columns and "Titre" in df_clean.columns:
+            df_clean["Titre"] = df_clean.apply(
+                lambda row: "Me" if "avocat" in str(row["Fonction"]).lower() else row["Titre"],
+                axis=1
+            )
 
         # -------------------------
         # Ordre final
